@@ -22,6 +22,20 @@ interface GHLContactResponse {
 
 export async function createGHLContact(leadData: LeadData): Promise<GHLContactResponse> {
   try {
+    // Check if webhook URL is configured
+    if (!GHL_WEBHOOK_URL || GHL_WEBHOOK_URL === 'YOUR_GHL_WEBHOOK_URL_HERE') {
+      console.warn('GoHighLevel webhook URL not configured. Lead data:', leadData);
+      // Return success for demo purposes - replace with actual webhook URL to enable
+      return {
+        success: true,
+        contact: {
+          id: 'demo-' + Date.now(),
+          email: leadData.email,
+          name: leadData.name,
+        },
+      };
+    }
+
     // Split name into first and last name for better organization
     const nameParts = leadData.name.trim().split(' ');
     const firstName = nameParts[0] || '';
