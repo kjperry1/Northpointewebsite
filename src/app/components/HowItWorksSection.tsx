@@ -29,7 +29,7 @@ export function HowItWorksSection() {
   ];
 
   return (
-    <section className="py-24 bg-white">
+    <section id="how-it-works" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <div className="h-px w-16 bg-[var(--gold)] mb-8 mx-auto"></div>

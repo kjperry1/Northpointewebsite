@@ -20,7 +20,7 @@ export function InvestmentPhilosophySection() {
   ];
 
   return (
-    <section className="py-24 bg-[var(--cream)]">
+    <section id="philosophy" className="py-24 bg-[var(--cream)]">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <div className="h-px w-16 bg-[var(--gold)] mb-8 mx-auto"></div>

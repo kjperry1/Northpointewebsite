@@ -1,18 +1,59 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { Input } from './ui/input';
+import { createGHLContact } from '../services/gohighlevel';
+import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { NorthPointeLogo } from './NorthPointeLogo';
 
 interface GateSectionProps {
   onSubmit: (name: string, email: string) => void;
 }
 
-export function GateSection({ onSubmit }: GateSectionProps) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+interface FormData {
+  name: string;
+  email: string;
+}
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (name && email) {
-      onSubmit(name, email);
+export function GateSection({ onSubmit }: GateSectionProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>();
+
+  const onFormSubmit = async (data: FormData) => {
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setErrorMessage('');
+
+    try {
+      // Submit to GoHighLevel
+      const result = await createGHLContact({
+        name: data.name,
+        email: data.email,
+        source: 'Website Gate Entry',
+        tags: ['investor-network', 'gated-entry'],
+      });
+
+      if (result.success) {
+        setSubmitStatus('success');
+        // Wait a moment to show success message, then proceed
+        setTimeout(() => {
+          onSubmit(data.name, data.email);
+        }, 1000);
+      } else {
+        setSubmitStatus('error');
+        setErrorMessage(result.error || 'Failed to submit. Please try again.');
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+      setErrorMessage('An unexpected error occurred. Please try again.');
+      setIsSubmitting(false);
     }
   };
 
@@ -33,11 +74,8 @@ export function GateSection({ onSubmit }: GateSectionProps) {
         <div className="bg-white/95 backdrop-blur-sm p-12 rounded-sm shadow-2xl border border-[var(--gold)]/20">
           {/* Logo/Brand */}
           <div className="text-center mb-8">
-            <div className="inline-block">
-              <div className="h-px w-16 bg-[var(--gold)] mb-6 mx-auto"></div>
-              <h1 className="text-3xl mb-3 text-[var(--black)]">North Pointe Capital Group</h1>
-              <div className="h-px w-16 bg-[var(--gold)] mt-6 mx-auto"></div>
-            </div>
+            <NorthPointeLogo variant="dark" />
+            <div className="h-px w-16 bg-[var(--gold)] mt-6 mx-auto"></div>
           </div>
 
           {/* Headline */}
@@ -49,8 +87,24 @@ export function GateSection({ onSubmit }: GateSectionProps) {
             Join the North Pointe Investor Network to receive access to curated apartment investment opportunities.
           </p>
 
+          {/* Success Message */}
+          {submitStatus === 'success' && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-sm flex items-center gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+              <p className="text-green-800 text-sm">Successfully registered! Redirecting...</p>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {submitStatus === 'error' && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-sm flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+              <p className="text-red-800 text-sm">{errorMessage}</p>
+            </div>
+          )}
+
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
             <div>
               <label htmlFor="name" className="block mb-2 text-[var(--black)]">
                 Full Name
@@ -58,12 +112,26 @@ export function GateSection({ onSubmit }: GateSectionProps) {
               <Input
                 id="name"
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-[var(--gold)] bg-white"
+                {...register('name', {
+                  required: 'Full name is required',
+                  minLength: {
+                    value: 2,
+                    message: 'Name must be at least 2 characters',
+                  },
+                  pattern: {
+                    value: /^[a-zA-Z\s'-]+$/,
+                    message: 'Please enter a valid name',
+                  },
+                })}
+                className={`w-full px-4 py-3 border rounded-sm focus:outline-none focus:ring-2 focus:ring-[var(--gold)] bg-white ${
+                  errors.name ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="John Smith"
+                disabled={isSubmitting}
               />
+              {errors.name && (
+                <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+              )}
             </div>
 
             <div>
@@ -73,19 +141,42 @@ export function GateSection({ onSubmit }: GateSectionProps) {
               <Input
                 id="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-[var(--gold)] bg-white"
+                {...register('email', {
+                  required: 'Email address is required',
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Please enter a valid email address',
+                  },
+                })}
+                className={`w-full px-4 py-3 border rounded-sm focus:outline-none focus:ring-2 focus:ring-[var(--gold)] bg-white ${
+                  errors.email ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="john@example.com"
+                disabled={isSubmitting}
               />
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+              )}
             </div>
 
             <button
               type="submit"
-              className="w-full bg-[var(--gold)] hover:bg-[var(--gold-dark)] text-[var(--black)] py-4 px-6 rounded-sm transition-all duration-300 tracking-wide"
+              disabled={isSubmitting || submitStatus === 'success'}
+              className="w-full bg-[var(--gold)] hover:bg-[var(--gold-dark)] text-[var(--black)] py-4 px-6 rounded-sm transition-all duration-300 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              Enter Investor Network
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Submitting...
+                </>
+              ) : submitStatus === 'success' ? (
+                <>
+                  <CheckCircle className="w-5 h-5" />
+                  Success!
+                </>
+              ) : (
+                'Enter Investor Network'
+              )}
             </button>
           </form>
 

@@ -7,7 +7,7 @@ export function HeroSection() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center">
+    <div id="hero" className="relative min-h-screen flex items-center justify-center">
       {/* Background Image with Overlay */}
       <div 
         className="absolute inset-0 bg-cover bg-center"
@@ -15,7 +15,7 @@ export function HeroSection() {
           backgroundImage: 'url(https://images.unsplash.com/photo-1761165308179-d8de8f78bc49?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBhcGFydG1lbnQlMjBjb21wbGV4JTIwZXh0ZXJpb3J8ZW58MXx8fHwxNzczODA3Njk1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)'
         }}
       >
-        <div className="absolute inset-0 bg-[var(--black)]/70"></div>
+        <div className="absolute inset-0 bg-[var(--black)]/40"></div>
       </div>
 
       {/* Content */}
