@@ -26,15 +26,13 @@ export default function App() {
         }`}
       >
         <Header />
-        <div className="min-h-screen pt-20">
-          <HeroSection />
-          <WhoThisIsForSection />
-          <InvestmentPhilosophySection />
-          <HowItWorksSection />
-          <InvestorQualificationSection />
-          <LeadershipSection />
-          <FinalCTASection />
-        </div>
+        <HeroSection />
+        <WhoThisIsForSection />
+        <InvestmentPhilosophySection />
+        <HowItWorksSection />
+        <InvestorQualificationSection />
+        <LeadershipSection />
+        <FinalCTASection />
       </div>
     </div>
   );
