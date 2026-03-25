@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Input } from './ui/input';
 import { createGHLContact } from '../services/gohighlevel';
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import { NorthPointeLogo } from './NorthPointeLogo';
+import logoGateForm from "figma:asset/fbbc6e937a2d4ac7d9c172d540eafee3a1e2071f.png";
 
 interface GateSectionProps {
   onSubmit: (name: string, email: string) => void;
@@ -74,7 +74,11 @@ export function GateSection({ onSubmit }: GateSectionProps) {
         <div className="bg-white/95 backdrop-blur-sm p-12 rounded-sm shadow-2xl border border-[var(--gold)]/20">
           {/* Logo/Brand */}
           <div className="text-center mb-8">
-            <NorthPointeLogo variant="dark" />
+            <img 
+              src={logoGateForm} 
+              alt="North Pointe Capital Group" 
+              className="h-24 w-auto object-contain mx-auto"
+            />
             <div className="h-px w-16 bg-[var(--gold)] mt-6 mx-auto"></div>
           </div>
 

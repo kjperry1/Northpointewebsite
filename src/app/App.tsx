@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GateSection } from './components/GateSection';
 import { Header } from './components/Header';
 import { HeroSection } from './components/HeroSection';
@@ -11,18 +11,30 @@ import { FinalCTASection } from './components/FinalCTASection';
 
 export default function App() {
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [showGate, setShowGate] = useState(false);
+
+  useEffect(() => {
+    // Show the gate after 5 seconds if not already unlocked
+    const timer = setTimeout(() => {
+      if (!isUnlocked) {
+        setShowGate(true);
+      }
+    }, 5000); // 5 seconds
+
+    return () => clearTimeout(timer);
+  }, [isUnlocked]);
 
   return (
     <div>
-      {!isUnlocked && (
-        <div className="fixed inset-0 z-50">
+      {showGate && !isUnlocked && (
+        <div className="fixed inset-0 z-50 animate-fade-in">
           <GateSection onSubmit={() => setIsUnlocked(true)} />
         </div>
       )}
 
       <div
         className={`transition-all duration-500 ${
-          isUnlocked ? 'opacity-100' : 'opacity-30 blur-sm pointer-events-none'
+          showGate && !isUnlocked ? 'opacity-30 blur-sm pointer-events-none' : 'opacity-100'
         }`}
       >
         <Header />
